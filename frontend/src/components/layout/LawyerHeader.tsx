@@ -25,31 +25,31 @@ export default function LawyerHeader() {
       href: '/',
       icon: LayoutDashboard
     },
-    {
-      name: 'Cases',
-      href: '/cases',
-      icon: FileText
-    },
-    {
-      name: 'Clients',
-      href: '/clients',
-      icon: Users
-    },
-    {
-      name: 'Expenses',
-      href: '/expenses',
-      icon: DollarSign
-    },
+    // {
+    //   name: 'Cases',
+    //   href: '/cases',
+    //   icon: FileText
+    // },
+    // {
+    //   name: 'Clients',
+    //   href: '/clients',
+    //   icon: Users
+    // },
+    // {
+    //   name: 'Expenses',
+    //   href: '/expenses',
+    //   icon: DollarSign
+    // },
     {
       name: 'Fees',
       href: '/fees',
       icon: Calculator
     },
-    {
-      name: 'AI Research',
-      href: '/ai-research',
-      icon: Bot
-    }
+    // {
+    //   name: 'AI Research',
+    //   href: '/ai-research',
+    //   icon: Bot
+    // }
   ]
 
   const handleLogout = () => {
@@ -68,7 +68,7 @@ export default function LawyerHeader() {
           </div>
 
           {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-2">
+          <nav className="hidden md:flex items-center space-x-6">
             {navigation.map((item) => {
               const isActive = location.pathname === item.href
               return (
@@ -92,7 +92,7 @@ export default function LawyerHeader() {
           {/* Right side controls */}
           <div className="flex items-center space-x-6">
             {/* Language Switcher */}
-            <div className="flex items-center space-x-2 rounded-xl px-4 py-2" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}>
+            {/* <div className="flex items-center space-x-2 rounded-xl px-4 py-2" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}>
               <Globe className="h-4 w-4 text-gray-500" />
               <select
                 value={language}
@@ -102,7 +102,7 @@ export default function LawyerHeader() {
                 <option value="en">English</option>
                 <option value="hi">हिन्दी</option>
               </select>
-            </div>
+            </div> */}
 
             {/* Notifications */}
             <button className="relative p-3 rounded-xl text-gray-400 hover:text-gray-600 transition-all duration-200" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }} onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'} onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}>
@@ -135,7 +135,7 @@ export default function LawyerHeader() {
 
         {/* Mobile Navigation */}
         <div className="md:hidden border-t" style={{ borderColor: 'rgba(255, 255, 255, 0.3)' }}>
-          <nav className="flex space-x-2 py-3 overflow-x-auto px-2">
+          <nav className="flex space-x-4 py-3 overflow-x-auto px-2">
             {navigation.map((item) => {
               const isActive = location.pathname === item.href
               return (

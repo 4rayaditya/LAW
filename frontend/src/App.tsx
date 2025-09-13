@@ -5,6 +5,7 @@ import { LanguageProvider } from './contexts/LanguageContext'
 import SimpleLoginPage from './pages/SimpleLoginPage'
 import Dashboard from './pages/Dashboard'
 import CaseDetailPage from './pages/CaseDetailPage'
+import FeesPage from './pages/FeesPage'
 import LoadingSpinner from './components/ui/LoadingSpinner'
 
 function AppRoutes() {
@@ -26,6 +27,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<Dashboard />} />
       <Route path="/cases/:caseId" element={<CaseDetailPage />} />
+      <Route path="/fees" element={<FeesPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

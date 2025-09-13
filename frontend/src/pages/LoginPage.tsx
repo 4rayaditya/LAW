@@ -105,18 +105,8 @@ export default function LoginPage() {
                   <Users className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">Multi-Role Platform</h3>
-                  <p className="text-blue-100 text-sm">Serves Judges, Lawyers, and Clients</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-4">
-                <div className="bg-white/20 p-2 rounded-lg">
-                  <Gavel className="h-6 w-6" />
-                </div>
-                <div>
-                  <h3 className="font-semibold">AI-Powered Analysis</h3>
-                  <p className="text-blue-100 text-sm">Smart case management and insights</p>
+                  <h3 className="font-semibold">Choose Your Role</h3>
+                  <p className="text-blue-100 text-sm">Judge, Lawyer, or Client</p>
                 </div>
               </div>
             </div>

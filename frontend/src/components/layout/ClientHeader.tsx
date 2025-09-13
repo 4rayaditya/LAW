@@ -52,51 +52,47 @@ export default function ClientHeader() {
   }
 
   return (
-    <header className="shadow-lg border-b" style={{ backgroundColor: '#ddb892', borderColor: '#ddb892' }}>
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+    <header className="shadow-lg border-b sticky top-0 z-50" style={{ backgroundColor: '#ddb892' }}>
+      <div className="w-full px-6">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo and Brand - Leftmost */}
           <div className="flex items-center">
-            <Link to="/dashboard" className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                <FileText className="h-5 w-5" style={{ color: '#ddb892' }} />
-              </div>
-              <span className="text-xl font-bold text-white">NY.AI</span>
-            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">NY.AI</h1>
+            </div>
           </div>
 
           {/* Navigation */}
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex items-center space-x-6">
             {navigation.map((item) => {
-              const Icon = item.icon
               const isActive = location.pathname === item.href
-              
               return (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    'flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+                    'flex items-center px-5 py-3 text-sm font-semibold rounded-xl transition-all duration-200',
                     isActive
-                      ? 'text-white bg-white bg-opacity-20'
-                      : 'text-white hover:bg-white hover:bg-opacity-10'
+                      ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 shadow-sm border border-blue-200'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm'
                   )}
                 >
-                  <Icon className="h-4 w-4" />
-                  <span>{item.name}</span>
+                  <item.icon className="h-5 w-5 mr-2" />
+                  {item.name}
                 </Link>
               )
             })}
           </nav>
 
-          {/* Right side */}
-          <div className="flex items-center space-x-4">
+          {/* Right side controls */}
+          <div className="flex items-center space-x-6">
             {/* Language Switcher */}
-            <div className="relative">
+            <div className="flex items-center space-x-2 rounded-xl px-4 py-2" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}>
+              <Globe className="h-4 w-4 text-gray-500" />
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="bg-transparent text-white border border-white border-opacity-30 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                className="text-sm border-none outline-none bg-transparent text-gray-700 font-medium"
               >
                 <option value="en">English</option>
                 <option value="hi">हिन्दी</option>
@@ -111,27 +107,49 @@ export default function ClientHeader() {
             </button>
 
             {/* User Profile */}
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                  <User className="h-5 w-5" style={{ color: '#ddb892' }} />
-                </div>
-                <div className="hidden sm:block">
-                  <p className="text-sm font-semibold text-white">{user?.name}</p>
-                  <p className="text-xs text-white text-opacity-80 font-medium">Client</p>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="p-2 rounded-lg text-white hover:text-white transition-all duration-200"
-                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-                  onMouseEnter={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
-                  onMouseLeave={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
-                >
-                  <LogOut className="h-4 w-4" />
-                </button>
+            <div className="flex items-center space-x-4 rounded-xl px-4 py-2" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}>
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2 rounded-lg shadow-sm">
+                <User className="h-5 w-5 text-white" />
               </div>
+              <div className="hidden sm:block">
+                <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
+                <p className="text-xs text-gray-500 font-medium">Client</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="p-2 rounded-lg text-gray-400 hover:text-gray-600 transition-all duration-200"
+                style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                onMouseEnter={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'rgba(255, 255, 255, 0.3)'}
+                onMouseLeave={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
             </div>
           </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        <div className="md:hidden border-t" style={{ borderColor: 'rgba(255, 255, 255, 0.3)' }}>
+          <nav className="flex space-x-4 py-3 overflow-x-auto px-2">
+            {navigation.map((item) => {
+              const isActive = location.pathname === item.href
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={cn(
+                    'flex items-center px-4 py-2 text-xs font-semibold rounded-lg whitespace-nowrap transition-all duration-200',
+                    isActive
+                      ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 shadow-sm border border-blue-200'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm'
+                  )}
+                >
+                  <item.icon className="h-4 w-4 mr-2" />
+                  {item.name}
+                </Link>
+              )
+            })}
+          </nav>
         </div>
       </div>
     </header>
