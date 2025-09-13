@@ -1,0 +1,252 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// SQLite doesn't support enums, using strings instead
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      String
+  name      String
+  barId     String?  @map("bar_id")
+  courtId   String?  @map("court_id")
+  phone     String?
+  lawFirmId String?  @map("law_firm_id")
+  isActive  Boolean  @default(true) @map("is_active")
+  lastLogin DateTime? @map("last_login")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  casesAsJudge   Case[] @relation("JudgeCases")
+  casesAsLawyer  Case[] @relation("LawyerCases")
+  casesAsClient  Case[] @relation("ClientCases")
+  uploadedDocs   Document[] @relation("UploadedBy")
+  documentRequests DocumentRequest[] @relation("RequestedBy")
+  notifications  Notification[] @relation("UserNotifications")
+  lawFirm        LawFirm? @relation("LawFirmMembers", fields: [lawFirmId], references: [id])
+  caseTransfers  CaseTransfer[] @relation("TransferredBy")
+  caseTransfersReceived CaseTransfer[] @relation("TransferredTo")
+
+  @@map("users")
+}
+
+model Case {
+  id          String      @id @default(uuid())
+  caseNumber  String      @unique @map("case_number")
+  title       String
+  type        String
+  subtype     String
+  status      String  @default("ACTIVE")
+  urgency     String @default("MEDIUM")
+  hearingDate DateTime?   @map("hearing_date")
+  description String?
+  lawFirmId   String?     @map("law_firm_id")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  // Foreign Keys
+  judgeId  String @map("judge_id")
+  lawyerId String @map("lawyer_id")
+  clientId String @map("client_id")
+
+  // Relations
+  judge  User   @relation("JudgeCases", fields: [judgeId], references: [id])
+  lawyer User   @relation("LawyerCases", fields: [lawyerId], references: [id])
+  client User   @relation("ClientCases", fields: [clientId], references: [id])
+  lawFirm LawFirm? @relation("LawFirmCases", fields: [lawFirmId], references: [id])
+  
+  documents     Document[]
+  ipcSections   CaseIPCSection[]
+  documentRequests DocumentRequest[]
+  notifications Notification[] @relation("CaseNotifications")
+  transfers     CaseTransfer[] @relation("CaseTransfers")
+  analytics     CaseAnalytics? @relation("CaseAnalytics")
+
+  @@map("cases")
+}
+
+model Document {
+  id                    String   @id @default(uuid())
+  fileName              String   @map("file_name")
+  fileUrl               String   @map("file_url")
+  documentType          String   @map("document_type")
+  extractedText         String?  @map("extracted_text")
+  isApprovedByLawyer    Boolean  @default(false) @map("is_approved_by_lawyer")
+  isSharedWithJudge     Boolean  @default(false) @map("is_shared_with_judge")
+  uploadedAt            DateTime @default(now()) @map("uploaded_at")
+  approvedAt            DateTime? @map("approved_at")
+  sharedWithJudgeAt     DateTime? @map("shared_with_judge_at")
+
+  // Foreign Keys
+  caseId        String @map("case_id")
+  uploadedById  String @map("uploaded_by_id")
+
+  // Relations
+  case       Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  uploadedBy User @relation("UploadedBy", fields: [uploadedById], references: [id])
+  notifications Notification[] @relation("DocumentNotifications")
+
+  @@map("documents")
+}
+
+model IPCSection {
+  id          String @id @default(uuid())
+  sectionCode String @unique @map("section_code")
+  description String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  cases CaseIPCSection[]
+
+  @@map("ipc_sections")
+}
+
+model CaseIPCSection {
+  id           String @id @default(uuid())
+  caseId       String @map("case_id")
+  ipcSectionId String @map("ipc_section_id")
+
+  // Relations
+  case      Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  ipcSection IPCSection @relation(fields: [ipcSectionId], references: [id], onDelete: Cascade)
+
+  @@unique([caseId, ipcSectionId])
+  @@map("case_ipc_sections")
+}
+
+model DocumentRequest {
+  id          String   @id @default(uuid())
+  documentType String  @map("document_type")
+  description String?
+  isCompleted Boolean  @default(false)
+  requestedAt DateTime @default(now()) @map("requested_at")
+  completedAt DateTime? @map("completed_at")
+
+  // Foreign Keys
+  caseId     String @map("case_id")
+  requestedById String @map("requested_by_id")
+
+  // Relations
+  case       Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  requestedBy User @relation("RequestedBy", fields: [requestedById], references: [id])
+
+  @@map("document_requests")
+}
+
+model LawFirm {
+  id          String   @id @default(uuid())
+  name        String
+  address     String?
+  phone       String?
+  email       String?
+  licenseNumber String? @map("license_number")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  members     User[] @relation("LawFirmMembers")
+  cases       Case[] @relation("LawFirmCases")
+
+  @@map("law_firms")
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  title       String
+  message     String
+  type        String   // 'reminder', 'alert', 'info', 'success', 'warning'
+  isRead      Boolean  @default(false) @map("is_read")
+  priority    String   @default("MEDIUM") // 'HIGH', 'MEDIUM', 'LOW'
+  scheduledAt DateTime? @map("scheduled_at")
+  sentAt      DateTime? @map("sent_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Foreign Keys
+  userId      String @map("user_id")
+  caseId      String? @map("case_id")
+  documentId  String? @map("document_id")
+
+  // Relations
+  user        User @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  case        Case? @relation("CaseNotifications", fields: [caseId], references: [id], onDelete: Cascade)
+  document    Document? @relation("DocumentNotifications", fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model CaseTransfer {
+  id          String   @id @default(uuid())
+  reason      String
+  notes       String?
+  status      String   @default("PENDING") // 'PENDING', 'APPROVED', 'REJECTED'
+  requestedAt DateTime @default(now()) @map("requested_at")
+  approvedAt  DateTime? @map("approved_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Foreign Keys
+  caseId      String @map("case_id")
+  fromUserId  String @map("from_user_id")
+  toUserId    String @map("to_user_id")
+
+  // Relations
+  case        Case @relation("CaseTransfers", fields: [caseId], references: [id], onDelete: Cascade)
+  fromUser    User @relation("TransferredBy", fields: [fromUserId], references: [id])
+  toUser      User @relation("TransferredTo", fields: [toUserId], references: [id])
+
+  @@map("case_transfers")
+}
+
+model CaseAnalytics {
+  id                String   @id @default(uuid())
+  caseId            String   @unique @map("case_id")
+  totalDocuments    Int      @default(0) @map("total_documents")
+  approvedDocuments Int      @default(0) @map("approved_documents")
+  pendingDocuments  Int      @default(0) @map("pending_documents")
+  rejectedDocuments Int      @default(0) @map("rejected_documents")
+  averageProcessingTime Int? @map("average_processing_time") // in hours
+  lastActivity      DateTime? @map("last_activity")
+  complexityScore   Float?   @map("complexity_score") // 0-10 scale
+  riskLevel         String?  @map("risk_level") // 'LOW', 'MEDIUM', 'HIGH'
+  predictedOutcome  String?  @map("predicted_outcome")
+  confidenceScore   Float?   @map("confidence_score") // 0-1 scale
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  case              Case @relation("CaseAnalytics", fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@map("case_analytics")
+}
+
+model HistoricalCase {
+  id          String   @id @default(uuid())
+  caseNumber  String   @map("case_number")
+  title       String
+  type        String
+  subtype     String
+  status      String
+  urgency     String
+  outcome     String?  // 'WON', 'LOST', 'SETTLED', 'DISMISSED'
+  duration    Int?     // in days
+  complexity  String?  // 'SIMPLE', 'MODERATE', 'COMPLEX'
+  judgeName   String?  @map("judge_name")
+  lawyerName  String?  @map("lawyer_name")
+  ipcSections String?  @map("ipc_sections") // JSON string
+  documents   Int      @default(0)
+  hearingCount Int     @default(0) @map("hearing_count")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("historical_cases")
+}
